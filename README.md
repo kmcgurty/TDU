@@ -2,9 +2,10 @@
 Teardown Chat is an open source chat client for the game Teardown. Based off of [Nahu's TDU](https://github.com/nxhu64/TDU).
 
 ## Features
-* In-game chat window
+* Online in-game chat
+* Configurable username
 * Ability to move the window around and resize to fit your screen
-* Commands - type /help in game to view them
+* Commands - type /help in-game to view them
 
 ## Installation
 1. Download the latest release of [Teardown Chat-X.X.X.zip](http://github.com/kmcgurty/TDU/releases/latest).
@@ -17,6 +18,7 @@ Teardown Chat is an open source chat client for the game Teardown. Based off of 
 * Copy/paste
 * User roles [Admin/Mod/VIP]
 * More work on the server needs to be done (including the website)
+* Message history on arrow up
 
 ## Key binds
 * T opens the chat window
