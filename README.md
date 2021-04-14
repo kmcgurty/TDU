@@ -1,4 +1,4 @@
-# Teardown Unleashed - Online Chat Client
+# Teardown Chat
 Teardown Chat is an open source chat client for the game Teardown. Is based off of [Nahu's TDU](https://github.com/nxhu64/TDU).
 
 ## Features
