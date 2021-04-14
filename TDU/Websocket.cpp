@@ -3,7 +3,7 @@
 #include "CLuaFunctions.h"
 #include "Teardown.h"
 
-#include "client_wss.hpp"
+#include "client_ws.hpp"
 #include "Websocket.h"
 #include "Chat.h"
 #include "helper.h"

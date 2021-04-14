@@ -250,10 +250,20 @@ void Helper::RegisterCommands() {
             Chat::SendLocalMessageUnformatted("System", message.str());
         }
         else {
+            for (int i = 0; i < Chat::Commands.size(); i++) {
+                auto command = Chat::Commands[i];
+
+                if (command.commandName == args[0]) {
+                    std::stringstream message;
+                    message << "Help for /\"" << Chat::Commands[i].commandName << "\": \n\n" << Chat::Commands[i].helptext;
+                    Chat::SendLocalMessageUnformatted("System", message.str());
+                    
+                    return;
+                }
+            }
+
             std::stringstream message;
-
-            //message << "Help for \"" <<  << "\": \n\n";
-
+            message << "Help text for command \"" << args[0] << "\" was not found. Type \"" << Chat::commandPrefix << "help\" to view a list of available commands.";
             Chat::SendLocalMessageUnformatted("System", message.str());
         }
     }, -1, "Use with /help <command> to get help with a specific command. Also shows all of the available commands.");
