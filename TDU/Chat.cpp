@@ -184,16 +184,15 @@ void Chat::Draw()
 		scrollToBottom = false;
 	}
 
-
 	ImGui::EndChild();
 
 	ImGui::Separator();
-
 
 	if (Chat::inputOpen) {
 		ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
 		if (ImGui::InputText("", InputBuf, IM_ARRAYSIZE(InputBuf), input_text_flags, &TextEditCallbackStub))
 		{
+
 			char* s = InputBuf;
 			Strtrim(s);
 

@@ -56,13 +56,15 @@ LRESULT	APIENTRY hWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			//}
 			break;
 		case WM_KEYUP:
+			ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 			CallWindowProc(WndProc, hWnd, uMsg, wParam, lParam);
 			break;
 		case WM_LBUTTONDOWN: case WM_LBUTTONUP:
 			if (Chat::IO->WantCaptureMouse) {
 				if (Chat::IO->MouseDrawCursor || Teardown::pGame->State <= 3) {
-					if(uMsg == WM_LBUTTONUP)
+					if (uMsg == WM_LBUTTONUP)
 						Chat::focusInput = true;
+					
 					Chat::inputOpen = true;
 				}
 
@@ -71,7 +73,7 @@ LRESULT	APIENTRY hWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			else {
 				Chat::inputOpen = false;
 				Chat::IO->MouseDown[0] = false;
-
+				
 				CallWindowProc(WndProc, hWnd, uMsg, wParam, lParam);
 			}
 
