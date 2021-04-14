@@ -4,6 +4,7 @@
 #include "Memory.h"
 #include "Signatures.h"
 #include "Cheats.h"
+#include "Chat.h"
 
 #include <detours.h>
 
@@ -14,6 +15,8 @@
 #include <imgui.h>
 #include <backends/imgui_impl_win32.h>
 #include <backends/imgui_impl_opengl3.h>
+
+
 
 /*
 	SwapBuffers hook
@@ -30,6 +33,7 @@ bool hwglSwapBuffers(_In_ HDC hDc)
 	ImGui::NewFrame();
 
 	Cheats::Menu::Draw();
+	Chat::Draw();
 
 	ImGui::EndFrame();
 	ImGui::Render();
@@ -65,6 +69,10 @@ void resetImgui()
 	ImGui_ImplOpenGL3_Shutdown();
 
 	ImGui::CreateContext();
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.Fonts->AddFontFromFileTTF("data\\ui\\font\\Ubuntu-Regular.ttf", 16);
+
 	const char* glsl_version = "#version 130";
 	ImGui_ImplWin32_Init(Globals::HWnd);
 	ImGui_ImplOpenGL3_Init(glsl_version);
@@ -80,6 +88,7 @@ void hglewInit()
 
 void Hooks::GLHooks::HookGlewInit()
 {
+
 	oglewInit = (tglewInit)Memory::FindPattern(Signatures::glewInit.pattern, Signatures::glewInit.mask, Globals::HModule);
 	WriteLog(LogType::Address, "glewInit: 0x%p | hook: 0x%p", oglewInit, hglewInit);
 

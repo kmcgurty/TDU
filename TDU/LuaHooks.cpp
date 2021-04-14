@@ -29,6 +29,7 @@ int hluaL_loadbuffer(lua_State* L, const char* buff, size_t size, const char* na
 	if (strcmp(name, "...ata/level/about/script/about.lua") == 0)
 		return 0;
 	*/
+
 	return oluaL_loadbuffer(L, buff, size, name);
 }
 
@@ -58,6 +59,8 @@ void hRegisterGameFunctions(ScriptCore* pSC)
 
 void Hooks::LuaHooks::HookRegisterGameFunctions()
 {
+	std::cout << "HookRegisterGameFunctions" << std::endl;
+
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 	DetourAttach(&(PVOID&)Teardown::Functions::LuaFunctions::RegisterGameFunctions, hRegisterGameFunctions);

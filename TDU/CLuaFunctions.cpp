@@ -2,27 +2,30 @@
 #include "Config.h"
 #include "TeardownFunctions.h"
 
+#include "Lua.hpp"
+
 #define reg(pSCLS, funcName, funcPointer) Teardown::Functions::LuaFunctions::RegisterLuaFunction(pSCLS, funcName, funcPointer)
 
 void CLuaFunctions::RegisterCFunctions(ScriptCore_LuaState* pSCLS)
 {
 	lua_State* L = pSCLS->pLSInfo->pLuaState;
 
-	#ifdef ENABLE_DEBUG_LIB
-		luaopen_debug(L);
-	#endif
+#ifdef ENABLE_DEBUG_LIB
+	luaopen_debug(L);
+#endif
 
-	#ifdef ENABLE_OS_LIB
-		luaopen_os(L);
-	#endif
+#ifdef ENABLE_OS_LIB
+	luaopen_os(L);
+#endif
 
-	#ifdef ENABLE_IO_LIB
-		luaopen_io(L);
-	#endif
+#ifdef ENABLE_IO_LIB
+	luaopen_io(L);
+#endif
 
 	/*
 		Register your functions here
 	*/
+
 
 	reg(pSCLS, "CreateBody", &CLuaFunctions::EntityFunctions::CreateBody);
 	reg(pSCLS, "CreateShape", &CLuaFunctions::EntityFunctions::CreateShape);

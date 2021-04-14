@@ -74,17 +74,17 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>Game path here</OutDir>
+    <OutDir>D:\Steam Games\steamapps\common\Teardown</OutDir>
     <TargetName>opengl32</TargetName>
     <LibraryPath>C:\lib\detours\lib.X64;C:\lib\glew\lib\Release\x64;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)ImGuiColorTextEdit;$(SolutionDir)imgui;$(SolutionDir)glm;C:\lib\glew\include;C:\lib\detours\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)ImGuiColorTextEdit;$(SolutionDir)imgui;$(SolutionDir)glm;C:\lib\glew\include;C:\lib\detours\include;C:\lib\ultralight\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>Game path here</OutDir>
+    <OutDir>..\..\..\..\Desktop\Projects\chat-project\TDU Modified Release\unzipped</OutDir>
     <TargetName>opengl32</TargetName>
     <IncludePath>$(SolutionDir)ImGuiColorTextEdit;$(SolutionDir)imgui;$(SolutionDir)glm;C:\lib\glew\include;C:\lib\detours\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\lib\detours\lib.X64;C:\lib\glew\lib\Release\x64;$(LibraryPath)</LibraryPath>
@@ -126,6 +126,14 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>glew32s.lib;OpenGL32.lib;detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>taskkill /IM "teardown.exe" /F 2&gt;nul 1&gt;nul
+Exit 0</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>"D:\Steam Games\steamapps\common\Teardown\teardown.exe"
+Exit 0</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -169,14 +177,25 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>glew32s.lib;OpenGL32.lib;detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>Xcopy /E /I "$(ProjectDir)data\*" "$(ProjectDir)$(OutDir)data"
+del "$(ProjectDir)$(OutDir)opengl32.exp"
+del "$(ProjectDir)$(OutDir)opengl32.lib"
+del "$(ProjectDir)$(OutDir)opengl32.pdb"
+Exit 0</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\ImGuiColorTextEdit\TextEditor.cpp" />
     <ClCompile Include="BaseHooks.cpp" />
+    <ClCompile Include="Chat.cpp" />
+    <ClCompile Include="CLuaEntityFunctions.cpp" />
+    <ClCompile Include="CLuaEnvFunctions.cpp" />
     <ClCompile Include="CLuaFunctions.cpp" />
+    <ClCompile Include="CLuaPlayerFunctions.cpp" />
     <ClCompile Include="ConstructorFunctions.cpp" />
-    <ClCompile Include="LuaEntityFunctions.cpp" />
     <ClCompile Include="GLHooks.cpp" />
+    <ClCompile Include="helper.cpp" />
     <ClCompile Include="ImGuiBuild.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="InputHook.cpp" />
@@ -214,25 +233,40 @@
     <ClCompile Include="lua\lzio.c" />
     <ClCompile Include="lua\print.c" />
     <ClCompile Include="Hooks.cpp" />
-    <ClCompile Include="MemoryFunctions.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="MiscHooks.cpp" />
     <ClCompile Include="Noclip.cpp" />
     <ClCompile Include="PlayerHooks.cpp" />
+    <ClCompile Include="ChatSetup.cpp" />
     <ClCompile Include="TDLua.cpp" />
     <ClCompile Include="TeardownFunctions.cpp" />
     <ClCompile Include="EntityFunctions.cpp" />
+    <ClCompile Include="UtilFunctions.cpp" />
+    <ClCompile Include="Websocket.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ImGuiColorTextEdit\TextEditor.h" />
+    <ClInclude Include="asio_compatibility.hpp" />
+    <ClInclude Include="Chat.h" />
+    <ClInclude Include="client_ws.hpp" />
+    <ClInclude Include="client_wss.hpp" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="crypto.hpp" />
+    <ClInclude Include="Editor.h" />
     <ClInclude Include="Entities.h" />
+    <ClInclude Include="Environment.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GLExterns.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="CLuaFunctions.h" />
+    <ClInclude Include="helper.h" />
+    <ClInclude Include="json.hpp" />
+    <ClInclude Include="MemoryFunctions.h" />
+    <ClInclude Include="mutex.hpp" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Script.h" />
+    <ClInclude Include="server_ws.hpp" />
+    <ClInclude Include="server_wss.hpp" />
     <ClInclude Include="ShaderSystem.h" />
     <ClInclude Include="Hooks.h" />
     <ClInclude Include="Loader.h" />
@@ -265,11 +299,14 @@
     <ClInclude Include="Cheats.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Signatures.h" />
+    <ClInclude Include="status_code.hpp" />
     <ClInclude Include="TDLua.h" />
     <ClInclude Include="Teardown.h" />
     <ClInclude Include="TeardownFunctions.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="Types.h" />
+    <ClInclude Include="utility.hpp" />
+    <ClInclude Include="Websocket.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="lua\Makefile" />

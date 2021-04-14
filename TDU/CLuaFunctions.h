@@ -16,11 +16,8 @@ namespace CLuaFunctions
 	{
 		void CreateBody(ScriptCore* pSC, lua_State*& L, retInfo* ret);
 		void CreateShape(ScriptCore* pSC, lua_State*& L, retInfo* ret);
-
 		void LoadVox(ScriptCore* pSC, lua_State*& L, retInfo* ret);
-
 		void InitializeBody(ScriptCore* pSC, lua_State*& L, retInfo* ret);
-
 		void SetLightPos(ScriptCore* pSC, lua_State*& L, retInfo* ret);
 	}
 
@@ -57,6 +54,11 @@ namespace CLuaFunctions
 		void SetFlashlightReach(ScriptCore* pSC, lua_State*& L, retInfo* ret);
 		void SetFlashlightFogScale(ScriptCore* pSC, lua_State*& L, retInfo* ret);
 		void SetFlashlightFogIter(ScriptCore* pSC, lua_State*& L, retInfo* ret);
+	}
+
+	namespace WebSocket
+	{
+		void Open(ScriptCore* pSC, lua_State*& L, retInfo* ret);
 	}
 
 	void RegisterCFunctions(ScriptCore_LuaState* pSCLS);

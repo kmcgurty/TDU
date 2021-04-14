@@ -2,6 +2,8 @@
 #include "Logger.h"
 #include "Globals.h"
 #include "Cheats.h"
+#include "Chat.h"
+#include "Teardown.h"
 
 #include <detours.h>
 #include <imgui.h>
@@ -14,30 +16,69 @@ tSetCursorPos	oSetCursorPos;
 
 bool hSetCursorPos(int X, int Y)
 {
-	if (!Cheats::Menu::Enabled)
-		return oSetCursorPos(X, Y);
-	return true;
+	if (Cheats::Menu::Enabled || Chat::inputOpen) {
+		return true;
+	}
+
+	return oSetCursorPos(X, Y);
+	
 }
 
 LRESULT	APIENTRY hWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	#define VK_T 84
+	#define VK_ESC 27
+
 	switch (uMsg)
 	{
-	case WM_KEYDOWN:
-		if (wParam == VK_INSERT)
-		{
-			Cheats::Menu::Enabled = !Cheats::Menu::Enabled;
-			return true;
-		}
+		case WM_KEYDOWN:
+			if (wParam == VK_INSERT)
+			{
+				Cheats::Menu::Enabled = !Cheats::Menu::Enabled;
+				return true;
+			}
 
-		if (wParam == 0x4E && !Cheats::Menu::Enabled)
-		{
-			Cheats::Noclip::Toggle();
-			return true;
-		}
+			if (!Chat::inputOpen && wParam == VK_T)
+			{
+				Chat::inputOpen = true;
+				Chat::focusInput = true;
+			}
+
+			if (Chat::inputOpen && wParam == VK_ESC) {
+				Chat::inputOpen = false;
+				return true;
+			}
+
+			//if (wParam == 0x4E && !Cheats::Menu::Enabled)
+			//{
+			//	Cheats::Noclip::Toggle();
+			//	return true;
+			//}
+			break;
+		case WM_KEYUP:
+			CallWindowProc(WndProc, hWnd, uMsg, wParam, lParam);
+			break;
+		case WM_LBUTTONDOWN: case WM_LBUTTONUP:
+			if (Chat::IO->WantCaptureMouse) {
+				if (Chat::IO->MouseDrawCursor || Teardown::pGame->State <= 3) {
+					if(uMsg == WM_LBUTTONUP)
+						Chat::focusInput = true;
+					Chat::inputOpen = true;
+				}
+
+				Chat::IO->MouseDown[0] = false;
+			}
+			else {
+				Chat::inputOpen = false;
+				Chat::IO->MouseDown[0] = false;
+
+				CallWindowProc(WndProc, hWnd, uMsg, wParam, lParam);
+			}
+
+			break;
 	}
 
-	if (Cheats::Menu::Enabled && GetForegroundWindow() == Globals::HWnd)
+	if (Cheats::Menu::Enabled || Chat::inputOpen && GetForegroundWindow() == Globals::HWnd)
 	{
 		ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 		return true;

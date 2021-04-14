@@ -35,6 +35,18 @@
     <Filter Include="Source Files\CLuaFunctions">
       <UniqueIdentifier>{cb65b361-3a51-444b-ab1c-e84997067fa5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Simple WebSocket">
+      <UniqueIdentifier>{b0b9d168-128f-4015-8279-2b34e3c3f410}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Chat">
+      <UniqueIdentifier>{dca2bd32-aa45-4e54-954a-4bde357782c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="json">
+      <UniqueIdentifier>{68316ad1-fed9-4c9a-a1c2-bac7c0661b96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Websocket">
+      <UniqueIdentifier>{550752a4-8839-4835-9029-dd429ea99b39}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -178,23 +190,35 @@
     <ClCompile Include="CLuaFunctions.cpp">
       <Filter>Source Files\CLuaFunctions</Filter>
     </ClCompile>
-    <ClCompile Include="CLuaEntityFunctions.cpp">
-      <Filter>Source Files\CLuaFunctions</Filter>
-    </ClCompile>
     <ClCompile Include="EntityFunctions.cpp">
-      <Filter>Source Files\Teardown\Functions</Filter>
-    </ClCompile>
-    <ClCompile Include="UtilFunctions.cpp">
       <Filter>Source Files\Teardown\Functions</Filter>
     </ClCompile>
     <ClCompile Include="GLHooks.cpp">
       <Filter>Source Files\Hooks</Filter>
     </ClCompile>
+    <ClCompile Include="CLuaEntityFunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="CLuaEnvFunctions.cpp">
-      <Filter>Source Files\CLuaFunctions</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CLuaPlayerFunctions.cpp">
-      <Filter>Source Files\CLuaFunctions</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UtilFunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Chat.cpp">
+      <Filter>Source Files\Chat</Filter>
+    </ClCompile>
+    <ClCompile Include="ChatSetup.cpp">
+      <Filter>Source Files\Chat</Filter>
+    </ClCompile>
+    <ClCompile Include="helper.cpp">
+      <Filter>Source Files\Chat</Filter>
+    </ClCompile>
+    <ClCompile Include="Websocket.cpp">
+      <Filter>Source Files\Websocket</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -336,14 +360,47 @@
     <ClInclude Include="Globals.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="MemoryFunctions.h">
-      <Filter>Source Files\Teardown\Functions</Filter>
+    <ClInclude Include="MemoryFunctions.h" />
+    <ClInclude Include="Editor.h" />
+    <ClInclude Include="Environment.h" />
+    <ClInclude Include="utility.hpp">
+      <Filter>Simple WebSocket</Filter>
     </ClInclude>
-    <ClInclude Include="Environment.h">
-      <Filter>Source Files\Teardown</Filter>
+    <ClInclude Include="mutex.hpp">
+      <Filter>Simple WebSocket</Filter>
     </ClInclude>
-    <ClInclude Include="Editor.h">
-      <Filter>Source Files\Teardown</Filter>
+    <ClInclude Include="server_ws.hpp">
+      <Filter>Simple WebSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="server_wss.hpp">
+      <Filter>Simple WebSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="status_code.hpp">
+      <Filter>Simple WebSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto.hpp">
+      <Filter>Simple WebSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="client_wss.hpp">
+      <Filter>Simple WebSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="client_ws.hpp">
+      <Filter>Simple WebSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="asio_compatibility.hpp">
+      <Filter>Simple WebSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="Chat.h">
+      <Filter>Source Files\Chat</Filter>
+    </ClInclude>
+    <ClInclude Include="json.hpp">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="helper.h">
+      <Filter>Source Files\Chat</Filter>
+    </ClInclude>
+    <ClInclude Include="Websocket.h">
+      <Filter>Source Files\Websocket</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
