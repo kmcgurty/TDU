@@ -6,17 +6,17 @@ Teardown Chat is an open source chat client for the game Teardown. Based off of 
 * Ability to move the window around and resize to fit your screen
 * Commands - type /help in game to view them
 
+## Installation
+1. Download the latest release of [Teardown Chat-X.X.X.zip](http://github.com/kmcgurty/TDU/releases/latest).
+2. Right click Teardown in Steam > Manage > click Browse Local Files
+3. Extract the entire contents of Teardown Chat-X.X.X.zip to the folder that opened. Overwrite any files if necessary.
+
 ## Todo
 * SSL
 * Account verification (after SSL). Usernames are not unique as of writing.
 * Copy/paste
 * User roles [Admin/Mod/VIP]
 * More work on the server needs to be done (including the website)
-
-## Installation
-1. Download the latest release of [Teardown Chat-X.X.X.zip](http://github.com/kmcgurty/TDU/releases/latest).
-2. Right click Teardown in Steam > Manage > click Browse Local Files
-3. Extract the entire contents of Teardown Chat-X.X.X.zip to the folder that opened. Overwrite any files if necessary.
 
 ## Key binds
 * T opens the chat window
