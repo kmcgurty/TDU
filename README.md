@@ -30,7 +30,7 @@ Teardown Chat is an open source chat client for the game Teardown. Based off of 
 * [Boost](https://github.com/boostorg/boost)
 
 ## Building:
-1. Clone the repository **`git clone --recurse-submodules https://github.com/nxhu64/TDU`**
+1. Clone the repository **`git clone --recurse-submodules https://github.com/kmcgurty/TDU`**
 2. Open TDU.sln in Visual Studio 2019
 3. On project properties->Debugging set the Command argument to your version of Teardown (SteamStub has anti-debugging, you'll have to figure how to circumvent that on your own) and set the working directory to Teardown's root directory (where the exe is located)
 4. On VC++ Directories set your include/library directories for GLEW, MS Detours, and Boost.
