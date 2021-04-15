@@ -3,20 +3,30 @@
 #include "CLuaFunctions.h"
 #include "Teardown.h"
 
-#include "client_ws.hpp"
+#include "client_wss.hpp"
 #include "Websocket.h"
 #include "Chat.h"
 #include "helper.h"
 #include "json.hpp"
 #include <boost/thread.hpp>
 
+
+#if defined(_DEBUG)
+    #include "client_ws.hpp"
+    using WssClient = SimpleWeb::SocketClient<SimpleWeb::WS>;
+    std::shared_ptr<WssClient::Connection> WSConnection = 0;
+#else
+    #include "client_wss.hpp"
+
+    using WssClient = SimpleWeb::SocketClient<SimpleWeb::WSS>;
+    std::shared_ptr<WssClient::Connection> WSConnection = 0;
+#endif
+
 using json = nlohmann::json;
-using WsClient = SimpleWeb::SocketClient<SimpleWeb::WS>;
-std::shared_ptr<WsClient::Connection> WSConnection = 0;
 
 boost::thread WSThread;
 
-void handle_message(std::shared_ptr<WsClient::Connection> connection, std::shared_ptr<WsClient::InMessage> in_message) {
+void handle_message(std::shared_ptr<WssClient::Connection> connection, std::shared_ptr<WssClient::InMessage> in_message) {
     std::string data = in_message->string();
 
     json parsed = json::parse(data);
@@ -39,7 +49,7 @@ void handle_message(std::shared_ptr<WsClient::Connection> connection, std::share
     }
 }
 
-void handle_open(std::shared_ptr<WsClient::Connection> connection) {
+void handle_open(std::shared_ptr<WssClient::Connection> connection) {
     WSConnection = connection;
 
     std::string message = "Connected to server " + Globals::WSuri;
@@ -49,16 +59,20 @@ void handle_open(std::shared_ptr<WsClient::Connection> connection) {
         std::string command = Helper::GenerateWSCommand(Chat::uuid.c_str(), "registeruser");
         Websocket::Send(command);
     }
+    else {
+        std::string command = Helper::GenerateWSCommand(Chat::uuid.c_str(), "checkin");
+        Websocket::Send(command);
+    }
 }
 
-void handle_close(std::shared_ptr<WsClient::Connection> connection, int status, const std::string& reason) {
+void handle_close(std::shared_ptr<WssClient::Connection> connection, int status, const std::string& reason) {
     std::cout << "Closed connection with status code " << status << ". Pushing WSClose event." << std::endl;
     WSConnection = 0;
     
 
 }
 
-void handle_error(std::shared_ptr<WsClient::Connection> connection, const SimpleWeb::error_code& ec) {
+void handle_error(std::shared_ptr<WssClient::Connection> connection, const SimpleWeb::error_code& ec) {
     std::cout << "Client: Error: " << ec << ", error message: " << ec.message() << std::endl;
 
     handle_close(connection, 0, "Client error");
@@ -72,7 +86,12 @@ void openWS(std::string URI) {
 
     std::cout << "Trying to connect with URI:" << URI << std::endl;
 
-    WsClient client(URI);
+
+    #if defined(_DEBUG)
+        WssClient client(URI);
+    #else
+        WssClient client(URI, false);
+    #endif
 
     client.on_message = handle_message;
     client.on_open = handle_open;

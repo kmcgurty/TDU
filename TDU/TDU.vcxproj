@@ -182,6 +182,7 @@ Exit 0</Command>
 del "$(ProjectDir)$(OutDir)opengl32.exp"
 del "$(ProjectDir)$(OutDir)opengl32.lib"
 del "$(ProjectDir)$(OutDir)opengl32.pdb"
+explorer "$(ProjectDir)$(OutDir)"
 Exit 0</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
