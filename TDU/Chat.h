@@ -18,7 +18,14 @@ namespace Chat
 	};
 
 	inline char commandPrefix = '/';
-	inline const char* configFile = "chat_config.json";
+
+
+	#if defined(_DEBUG)
+		inline const char* configFile = "chat_config_dev.json";
+	#else
+		inline const char* configFile = "chat_config.json";
+	#endif
+
 	inline std::vector<Chat::Command> Commands;
 	inline bool inputOpen = false;
 	inline bool focusInput = false;

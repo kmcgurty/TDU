@@ -234,6 +234,57 @@ void Helper::UpdateConfig() {
     fileW.close();
 }
 
+
+std::string removeAllChar(std::string str, char ch) {
+    for (int i = 0; i < str.length(); ++i) {
+        if (str[i] == ch)
+            str.erase(i, 1);
+    }
+
+    return str;
+}
+
+bool Helper::CheckForUpdate(){
+    Chat::SendLocalMessageUnformatted("Updater", "Checking for updates...");
+    std::string response = Websocket::GrabLatestVersion();
+
+    try {
+        json parsed = json::parse(response);
+
+        std::string server_ver_string = parsed["client"]["dll"];
+        std::string server_ver_cleaned = removeAllChar(server_ver_string, '.');
+
+        int server_ver = std::stoi(server_ver_cleaned, nullptr, 10);
+
+        std::string client_ver_cleaned = removeAllChar(Globals::version, '.');
+        int client_ver = std::stoi(client_ver_cleaned, nullptr, 10);
+
+        std::cout << "Server (int): " << server_ver << ", Client (int): " << client_ver << std::endl;
+
+        if (client_ver < server_ver) {
+            std::stringstream message;
+            message << "Your chat client is out of date. Please update before continuing - you can visit http://chat.kmcgurty.com to download the latest version.\n\n" << "Your version: " << Globals::version << " - Latest version: " << server_ver_string;
+            Chat::SendLocalMessageUnformatted("Updater", message.str());
+            
+            
+            
+            return false;
+        }
+        else {
+            Chat::SendLocalMessageUnformatted("Updater", "You're up to date!");
+            return true;
+        }
+    } catch (const std::exception& e) {
+        std::stringstream message;
+        message << "Response from the server was not valid JSON. This is where it broke: " << response;
+
+        Chat::SendLocalMessageUnformatted("Updater", "Unable to check the server for client update. Check the console for the error message.");
+        std::cout << e.what() << std::endl;
+        return true;
+    }
+    return true;
+}
+
 void Helper::RegisterCommands() {
     Chat::RegisterCommand("help", [](std::vector<std::string> args) {
         if (args.size() == 0) {
@@ -290,5 +341,4 @@ void Helper::RegisterCommands() {
         
         Websocket::Open(Globals::WSuri);
     }, -1, "Reconnects your client to the server.");
-    //Chat::RegisterCommand("reconnect", "Reconnects to the chat server. Helpful if you've lose connection for some reason.");
 }

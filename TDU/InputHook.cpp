@@ -32,16 +32,24 @@ LRESULT	APIENTRY hWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch (uMsg)
 	{
 		case WM_KEYDOWN:
+
 			if (wParam == VK_INSERT)
 			{
 				Cheats::Menu::Enabled = !Cheats::Menu::Enabled;
 				return true;
 			}
 
-			if (!Chat::inputOpen && wParam == VK_T)
-			{
-				Chat::inputOpen = true;
-				Chat::focusInput = true;
+			if (!Chat::inputOpen) {
+				if (wParam == VK_RETURN && Teardown::pGame->State == Teardown::gameState::editor) {
+					CallWindowProc(WndProc, hWnd, uMsg, wParam, lParam);
+					return true;
+				}
+
+				if (wParam == VK_T || wParam == VK_RETURN)
+				{
+					Chat::inputOpen = true;
+					Chat::focusInput = true;
+				}
 			}
 
 			if (Chat::inputOpen && wParam == VK_ESC) {

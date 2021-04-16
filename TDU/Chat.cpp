@@ -14,7 +14,7 @@ int MessageHistoryLimit = 200;
 std::vector<json> Messages;
 json config;
 
-char InputBuf[60];
+char InputBuf[200];
 std::once_flag chatInitialized;
 bool scrollToBottom = false;
 
@@ -48,7 +48,7 @@ void Chat::SendLocalData(std::string data) {
 }
 
 void Chat::SendLocalMessageUnformatted(const char* username, std::string message) {
-	std::vector<int> color = { 255, 0, 100, 1};
+	std::vector<int> color = { 255, 89, 89, 1};
 
 	std::string data = Helper::GenerateLocalMessage(username, message.c_str(), color);
 	Chat::SendLocalData(data);
@@ -124,8 +124,10 @@ void ChatInit() {
 	Chat::IO = &ImGui::GetIO();
 	Chat::SetupImGuiStyle();
 
-	Helper::RegisterCommands();
+	if (!Helper::CheckForUpdate()) return;
 	if(!Helper::PullConfig()) return;
+
+	Helper::RegisterCommands();
 
 	Websocket::Open(Globals::WSuri);
 }
@@ -204,11 +206,8 @@ void Chat::Draw()
 				else
 					Websocket::Send(Helper::GenerateWSMessage(Chat::uuid.c_str(), message));
 			}
-			else {
-				Chat::inputOpen = false;
-			}
 
-			ImGui::SetKeyboardFocusHere(-1);
+			Chat::inputOpen = false;
 	
 			strcpy(s, "");
 		}

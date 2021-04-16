@@ -13,4 +13,5 @@ namespace Helper
 	bool PullConfig();
 	void UpdateConfig();
 	void RegisterCommands();
+	bool CheckForUpdate();
 }

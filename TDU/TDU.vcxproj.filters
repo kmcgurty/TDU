@@ -47,6 +47,9 @@
     <Filter Include="Source Files\Websocket">
       <UniqueIdentifier>{550752a4-8839-4835-9029-dd429ea99b39}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Simple HTTP">
+      <UniqueIdentifier>{358f8ad4-5966-488c-878d-2dec259fa76a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -401,6 +404,9 @@
     </ClInclude>
     <ClInclude Include="Websocket.h">
       <Filter>Source Files\Websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="httplib.h">
+      <Filter>Simple HTTP</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

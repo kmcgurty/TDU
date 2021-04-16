@@ -261,6 +261,7 @@ Exit 0</Command>
     <ClInclude Include="Globals.h" />
     <ClInclude Include="CLuaFunctions.h" />
     <ClInclude Include="helper.h" />
+    <ClInclude Include="httplib.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="MemoryFunctions.h" />
     <ClInclude Include="mutex.hpp" />
