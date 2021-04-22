@@ -28,7 +28,7 @@
 
 using json = nlohmann::json;
 
-boost::thread WSThread;
+boost::thread* WSThread;
 
 void handle_message(std::shared_ptr<WssClient::Connection> connection, std::shared_ptr<WssClient::InMessage> in_message) {
     std::string data = in_message->string();
@@ -71,7 +71,10 @@ void handle_close(std::shared_ptr<WssClient::Connection> connection, int status,
     std::cout << "Closed connection with status code " << status << ". Pushing WSClose event." << std::endl;
     WSConnection = 0;
     
-
+    if(status == 1002)
+        Chat::SendLocalMessageUnformatted("SYSTEM", "You have been disconnected. Reason: more than 1 connection per IP address.");
+    else
+        Chat::SendLocalMessageUnformatted("SYSTEM", "You have been disconnected. See the console for the status code.");
 }
 
 void handle_error(std::shared_ptr<WssClient::Connection> connection, const SimpleWeb::error_code& ec) {
@@ -104,7 +107,13 @@ void openWS(std::string URI) {
 }
 
 void Websocket::Open(std::string URI) {
-    boost::thread WSThread(openWS, URI);
+    if (WSConnection)
+        WSConnection->send_close(1000);
+
+    //if (WSThread)
+    //    WSThread->join();
+
+    boost::thread thread(openWS, URI);
 }
 
 void Websocket::Send(std::string data) {

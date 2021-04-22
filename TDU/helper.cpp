@@ -263,10 +263,8 @@ bool Helper::CheckForUpdate(){
 
         if (client_ver < server_ver) {
             std::stringstream message;
-            message << "Your chat client is out of date. Please update before continuing - you can visit http://chat.kmcgurty.com to download the latest version.\n\n" << "Your version: " << Globals::version << " - Latest version: " << server_ver_string;
+            message << "Your chat client is out of date. Please update before continuing - you can visit https://teardownchat.com to download the latest version.\n\n" << "Your version: " << Globals::version << " - Latest version: " << server_ver_string;
             Chat::SendLocalMessageUnformatted("Updater", message.str());
-            
-            
             
             return false;
         }
@@ -306,7 +304,7 @@ void Helper::RegisterCommands() {
 
                 if (command.commandName == args[0]) {
                     std::stringstream message;
-                    message << "Help for /\"" << Chat::Commands[i].commandName << "\": \n\n" << Chat::Commands[i].helptext;
+                    message << "Help for \"" << Chat::Commands[i].commandName << "\": \n\n" << Chat::Commands[i].helptext;
                     Chat::SendLocalMessageUnformatted("System", message.str());
                     
                     return;
@@ -341,4 +339,8 @@ void Helper::RegisterCommands() {
         
         Websocket::Open(Globals::WSuri);
     }, -1, "Reconnects your client to the server.");
+
+    Chat::RegisterCommand("online", [](std::vector<std::string> args) {
+        Websocket::Send(Helper::GenerateWSCommand(Chat::uuid.c_str(), "listonline"));
+    }, -1, "Shows a list of users currently online.");
 }
