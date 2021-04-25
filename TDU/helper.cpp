@@ -391,17 +391,15 @@ bool Helper::CheckForUpdate(){
 void Helper::RegisterCommands() {
     Chat::RegisterCommand("help", [](std::vector<std::string> args) {
         if (args.size() == 0) {
-            std::stringstream message;
-
-            message << "List of available commands: \n\n";
+            Chat::SendLocalMessageUnformatted("Help", "---------------------------");
+            Chat::SendLocalMessageUnformatted("Help", "List of available commands:");
 
             for (int i = 0; i < Chat::Commands.size(); i++) {
                 auto command = Chat::Commands[i];
-
-                message << Chat::commandPrefix << command.commandName << " - " << command.helptext << "\n";
+                std::stringstream message;
+                message << "[" << Chat::commandPrefix << command.commandName << "](#A07CFF) " << command.helptext << "\n";
+                Chat::SendLocalMessageUnformatted("Help", message.str());
             }
-
-            Chat::SendLocalMessageUnformatted("Help", message.str());
         }
         else {
             for (int i = 0; i < Chat::Commands.size(); i++) {
@@ -437,6 +435,10 @@ void Helper::RegisterCommands() {
         Websocket::Send(Helper::GenerateWSCommand(Chat::uuid.c_str(), "setuser", args[0].c_str()));
     }, 1, "Changes your username. /setuser <username>");
 
+    Chat::RegisterCommand("online", [](std::vector<std::string> args) {
+        Websocket::Send(Helper::GenerateWSCommand(Chat::uuid.c_str(), "listonline"));
+    }, -1, "Shows a list of users currently online.");
+
     Chat::RegisterCommand("reconnect", [](std::vector<std::string> args) {
         std::stringstream message;
         message << "Trying to reconnect to the server...";
@@ -444,8 +446,4 @@ void Helper::RegisterCommands() {
         
         Websocket::Open(Globals::WSuri);
     }, -1, "Reconnects your client to the server.");
-
-    Chat::RegisterCommand("online", [](std::vector<std::string> args) {
-        Websocket::Send(Helper::GenerateWSCommand(Chat::uuid.c_str(), "listonline"));
-    }, -1, "Shows a list of users currently online.");
 }

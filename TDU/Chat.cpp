@@ -197,6 +197,8 @@ void Chat::Draw()
 		ImGui::NewLine();
 	}
 
+	ImGui::InvisibleButton("###padding", ImVec2(1, 1));
+
 	if (scrollToBottom) {
 		ImGui::SetScrollHereY(1.0f);
 		scrollToBottom = false;
