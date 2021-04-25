@@ -15,7 +15,7 @@ using json = nlohmann::json;
 
 json defaultConfig = {
         {"uuid", ""},
-        {"toggleChatOnOpen", false},
+        {"keepChatOpenOnEnter", false},
 };
 
 void Helper::OpenURL(const char* url) {
@@ -304,8 +304,8 @@ bool Helper::PullConfig()
             return false;
         }
 
-        if (parsed.contains("toggleChatOnOpen")) {
-            Chat::toggleChatOnOpen = parsed["toggleChatOnOpen"];
+        if (parsed.contains("keepChatOpenOnEnter")) {
+            Chat::keepChatOpenOnEnter = parsed["keepChatOpenOnEnter"];
         }
     }
     catch (const std::exception& e) {
@@ -330,7 +330,7 @@ void Helper::UpdateConfig() {
     json newConfig = defaultConfig;
     
     newConfig["uuid"] = Chat::uuid;
-    newConfig["toggleChatOnOpen"] = Chat::toggleChatOnOpen;
+    newConfig["keepChatOpenOnEnter"] = Chat::keepChatOpenOnEnter;
 
     fileW.open(Chat::configFile);
     fileW << newConfig.dump(4);
@@ -401,7 +401,7 @@ void Helper::RegisterCommands() {
                 message << Chat::commandPrefix << command.commandName << " - " << command.helptext << "\n";
             }
 
-            Chat::SendLocalMessageUnformatted("System", message.str());
+            Chat::SendLocalMessageUnformatted("Help", message.str());
         }
         else {
             for (int i = 0; i < Chat::Commands.size(); i++) {
@@ -410,7 +410,7 @@ void Helper::RegisterCommands() {
                 if (command.commandName == args[0]) {
                     std::stringstream message;
                     message << "Help for \"" << Chat::Commands[i].commandName << "\": \n\n" << Chat::Commands[i].helptext;
-                    Chat::SendLocalMessageUnformatted("System", message.str());
+                    Chat::SendLocalMessageUnformatted("Help", message.str());
                     
                     return;
                 }

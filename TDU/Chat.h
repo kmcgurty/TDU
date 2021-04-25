@@ -30,7 +30,7 @@ namespace Chat
 	inline bool p_open = true;
 	inline bool focusInput = false;
 	inline bool popupOpen = false;
-	inline bool toggleChatOnOpen = false; //updated when config is pulled
+	inline bool keepChatOpenOnEnter = false; //updated when config is pulled
 	inline const char* lastURL = "";
 	inline std::string uuid = "";
 	inline ImGuiIO* IO;

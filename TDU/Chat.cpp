@@ -222,7 +222,10 @@ void Chat::Draw()
 				else
 					Websocket::Send(Helper::GenerateWSMessage(Chat::uuid.c_str(), message));
 			}
-			Chat::inputOpen = false;
+
+			if(!Chat::keepChatOpenOnEnter)
+				Chat::inputOpen = false;
+			
 			strcpy(s, "");
 		}
 		if (Chat::focusInput) {
