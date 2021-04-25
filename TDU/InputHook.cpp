@@ -47,9 +47,13 @@ LRESULT	APIENTRY hWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 				if (wParam == VK_T || wParam == VK_RETURN)
 				{
+					Chat::p_open = true;
 					Chat::inputOpen = true;
 					Chat::focusInput = true;
 				}
+			}
+			else if (!Chat::focusInput) {
+				Chat::focusInput = true;
 			}
 
 			if (Chat::inputOpen && wParam == VK_ESC) {
@@ -70,9 +74,9 @@ LRESULT	APIENTRY hWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_LBUTTONDOWN: case WM_LBUTTONUP:
 			if (Chat::IO->WantCaptureMouse) {
 				if (Chat::IO->MouseDrawCursor || Teardown::pGame->State <= 3) {
-					if (uMsg == WM_LBUTTONUP)
+					if (!Chat::inputOpen)
 						Chat::focusInput = true;
-					
+
 					Chat::inputOpen = true;
 				}
 

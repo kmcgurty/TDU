@@ -19,7 +19,6 @@ namespace Chat
 
 	inline char commandPrefix = '/';
 
-
 	#if defined(_DEBUG)
 		inline const char* configFile = "chat_config_dev.json";
 	#else
@@ -28,7 +27,11 @@ namespace Chat
 
 	inline std::vector<Chat::Command> Commands;
 	inline bool inputOpen = false;
+	inline bool p_open = true;
 	inline bool focusInput = false;
+	inline bool popupOpen = false;
+	inline bool toggleChatOnOpen = false; //updated when config is pulled
+	inline const char* lastURL = "";
 	inline std::string uuid = "";
 	inline ImGuiIO* IO;
 	void Draw();

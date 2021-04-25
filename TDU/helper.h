@@ -25,14 +25,16 @@ struct Segment
 
 namespace Helper
 {
-	std::string GenerateLocalMessage(const char* username, const char* message, std::vector<int> color);
+    std::string GenerateLocalMessage(const char* username, const char* message, std::vector<int> color);
 	std::string GenerateWSMessage(const char* uuid, const char* message);
 	std::string GenerateWSCommand(const char* uuid, const char* command, const char* commandData = "");
     std::vector<Segment> TextToSegments(std::string text);
     void RenderMultiLineText(std::vector<Segment> segs);
 	void UpdateConfig();
 	void RegisterCommands();
+    void OpenURL(const char* url);
     bool IsValidHex(std::string const& s);
 	bool PullConfig();
 	bool CheckForUpdate();
+
 }

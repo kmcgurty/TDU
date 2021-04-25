@@ -5,7 +5,7 @@
 
 namespace Globals
 {
-	inline std::string version("1.0.1");
+	inline std::string version("1.1.0");
 	inline std::string UpdateURL = "https://chat.kmcgurty.com/latest";
 
 	#if defined(_DEBUG)

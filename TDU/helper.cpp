@@ -3,6 +3,8 @@
 #include "Websocket.h"
 #include "Globals.h"
 
+#include <windows.h>
+#include <shellapi.h>
 #include <imgui.h>
 #include <stdio.h>
 #include <fstream>
@@ -10,6 +12,15 @@
 #include <regex>
 
 using json = nlohmann::json;
+
+json defaultConfig = {
+        {"uuid", ""},
+        {"toggleChatOnOpen", false},
+};
+
+void Helper::OpenURL(const char* url) {
+    ShellExecute(0, 0, (char*)url, 0, 0, SW_SHOW);
+}
 
 bool Helper::IsValidHex(std::string const& s) {
     return s.find_first_not_of("0123456789abcdefABCDEF") == std::string::npos;
@@ -49,9 +60,17 @@ void Helper::RenderMultiLineText(std::vector<Segment> segs) {
                 lineStart.x = ImGui::GetItemRectMin().x;
                 ImGui::GetWindowDrawList()->AddLine(lineStart, lineEnd, segs[i].colour);
 
-                if (ImGui::IsItemHovered(ImGuiHoveredFlags_RectOnly))
-                    ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);
+                if (ImGui::IsItemHovered(ImGuiHoveredFlags_RectOnly)) {
+                    ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+                    if (Chat::IO->MouseClicked[0]) {
+                        std::cout << "Trying to open URL" << std::endl;
+                        Chat::lastURL = segs[i].url;
+                        Chat::popupOpen = true;
+                    }
+                }
             }
+
+
 
             if (textStart == drawEnd || drawEnd == textEnd){
                 ImGui::SameLine(0.0f, 0.0f);
@@ -70,7 +89,7 @@ void Helper::RenderMultiLineText(std::vector<Segment> segs) {
     }
 }
 
-//this function is a mess to read. Unfortunately, regex was not an option, so we manually check each character.
+//this function is a mess to read. Unfortunately, regex was not an option since it is slow. Because of this, we manually check each character.
 //checks for the pattern [text](data), to create markup urls, returns a vector of Segments
 std::vector<Segment> Helper::TextToSegments(std::string text)
 {
@@ -84,6 +103,10 @@ std::vector<Segment> Helper::TextToSegments(std::string text)
             const char beginChar = '(';
             const char endChar = ')';
         } url;
+
+        struct _color {
+            const char beginChar = '#';
+        } color;
 
         int textBeginPos = -1;
         int textEndPos = -1;
@@ -111,20 +134,25 @@ std::vector<Segment> Helper::TextToSegments(std::string text)
                 if (preMod.length() > 0)
                     pushTo->push_back(Segment(_strdup(preMod.c_str())));
 
-                if (modData.length() > 0 && modData.at(0) == '#') {
-                    std::string hex = modData.substr(1);
+                if(modText.length() > 0 && modData.length() > 0){
+                    if (modData.at(0) == color.beginChar) {
+                        std::string hex = modData.substr(1);
 
-                    int red = 255;
-                    int green = 255;
-                    int blue = 255;
+                        int red = 255;
+                        int green = 255;
+                        int blue = 255;
 
-                    if (Helper::IsValidHex(hex) && hex.length() == 6)
-                        sscanf(hex.c_str(), "%02x%02x%02x", &red, &green, &blue);
+                        if (Helper::IsValidHex(hex) && hex.length() == 6)
+                            sscanf(hex.c_str(), "%02x%02x%02x", &red, &green, &blue);
 
-                    pushTo->push_back(Segment(_strdup(modText.c_str()), IM_COL32(red, green, blue, 255), false, ""));
+                        pushTo->push_back(Segment(_strdup(modText.c_str()), IM_COL32(red, green, blue, 255), false, ""));
+                    }
+                    else {
+                        pushTo->push_back(Segment(_strdup(modText.c_str()), IM_COL32(127, 127, 255, 255), true, _strdup(modData.c_str())));
+                    }
                 }
                 else {
-                    pushTo->push_back(Segment(_strdup(modText.c_str()), IM_COL32(127, 127, 255, 255), true, _strdup(modData.c_str())));
+                    pushTo->push_back(Segment(_strdup(_text.c_str())));
                 }
             }
             else {
@@ -150,7 +178,7 @@ std::vector<Segment> Helper::TextToSegments(std::string text)
         }
 
         if (currChar == parser.text.endChar) {
-            if (parser.textBeginPos < 0 || (text.at(i + 1) != parser.url.beginChar)) {
+            if (parser.textBeginPos < 0 || (text.at((double)i + 1) != parser.url.beginChar)) {
                 parser.resetPositions();
                 continue;
             }
@@ -253,7 +281,7 @@ bool Helper::PullConfig()
 
 
     if (contents == "") {
-        std::string defaultconf = "{\"uuid\": \"\"}";
+        std::string defaultconf = defaultConfig.dump();
 
         fileW.open(Chat::configFile);
         fileW << defaultconf;
@@ -275,16 +303,23 @@ bool Helper::PullConfig()
             Chat::SendLocalMessageUnformatted("FATAL ERROR", message.str());
             return false;
         }
+
+        if (parsed.contains("toggleChatOnOpen")) {
+            Chat::toggleChatOnOpen = parsed["toggleChatOnOpen"];
+        }
     }
     catch (const std::exception& e) {
         std::stringstream message;
         message << Chat::configFile;
-        message << " is malformed! Please make sure it is valid JSON. You can also delete the file to generate a new one (your username will reset when you do this). Unable to continue.";
+        message << " is malformed! Please make sure it is valid JSON - post on the Discord for help. You can also delete the file to generate a new one (your username will reset when you do this). Unable to continue.";
 
         Chat::SendLocalMessageUnformatted("FATAL ERROR", message.str());
         std::cout << e.what() << std::endl;
         return false;
     }
+
+    //we update the config after pulling to set any new variables after an update
+    Helper::UpdateConfig();
 
     return true;
 }
@@ -292,12 +327,13 @@ bool Helper::PullConfig()
 void Helper::UpdateConfig() {
     std::ofstream fileW;
 
-    json newConfig = {
-        {"uuid", Chat::uuid}
-    };
+    json newConfig = defaultConfig;
+    
+    newConfig["uuid"] = Chat::uuid;
+    newConfig["toggleChatOnOpen"] = Chat::toggleChatOnOpen;
 
     fileW.open(Chat::configFile);
-    fileW << newConfig.dump();
+    fileW << newConfig.dump(4);
     fileW.close();
 }
 
@@ -329,9 +365,11 @@ bool Helper::CheckForUpdate(){
         std::cout << "Server (int): " << server_ver << ", Client (int): " << client_ver << std::endl;
 
         if (client_ver < server_ver) {
-            std::stringstream message;
-            message << "Your chat client is out of date. Please update before continuing - you can visit https://teardownchat.com to download the latest version.\n\n" << "Your version: " << Globals::version << " - Latest version: " << server_ver_string;
-            Chat::SendLocalMessageUnformatted("Updater", message.str());
+            Chat::SendLocalMessageUnformatted("Updater", "Your chat client is out of date. Click [here](https://github.com/kmcgurty/Teardown-Chat/releases/latest) to download the latest version, or visit [teardownchat.com](teardownchat.com).");
+
+            std::stringstream ver;
+            ver << "Your version:" << Globals::version << " - Latest version: " << server_ver_string;
+            Chat::SendLocalMessageUnformatted("Version", ver.str());
             
             return false;
         }
@@ -386,11 +424,11 @@ void Helper::RegisterCommands() {
 
     Chat::RegisterCommand("setuser", [](std::vector<std::string> args) {
         std::string newUsername = args[0];
-        int maxLen = 11;
+        int maxLen = 16;
 
-        if (newUsername.size() > maxLen || newUsername.size() < 0) {
+        if (newUsername.size() >= maxLen || newUsername.size() < 0) {
             std::stringstream message;
-            message << "Your username needs to be less than " << maxLen << " characters! \"" << newUsername << "\" is " << newUsername.size() << ".";
+            message << "Your username can be at most " << maxLen - 1 << " characters! \"" << newUsername << "\" is " << newUsername.size() << ".";
             Chat::SendLocalMessageUnformatted("System", message.str());
 
             return;

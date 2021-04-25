@@ -144,7 +144,12 @@ void Chat::Draw()
 
 	Chat::IO->MouseDrawCursor = Chat::inputOpen;
 
-	//ImGui::ShowDemoWindow();
+	if (!Chat::p_open) {
+		Chat::inputOpen = false;
+		Chat::focusInput = false;
+
+		return;
+	}
 
 	ImGuiStyle* style = &ImGui::GetStyle();
 	ImVec4* colors = style->Colors;
@@ -161,7 +166,7 @@ void Chat::Draw()
 	ImGui::SetNextWindowSize(ImVec2(466, 277), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowPos(ImVec2(30, Chat::IO->DisplaySize.y / 2 + 50), ImGuiCond_FirstUseEver);
 
-	ImGui::Begin(title.c_str(), 0, ImGuiWindowFlags_NoCollapse);
+	ImGui::Begin(title.c_str(), &Chat::p_open, ImGuiWindowFlags_NoCollapse);
 
 	const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
 	const float messageSpacing = 8.0f;
@@ -176,22 +181,18 @@ void Chat::Draw()
 		std::string message = Messages[i]["message"];
 		std::string username = Messages[i]["sender"]["username"];
 		std::string color = Messages[i]["sender"]["color"];
-		std::string formattedUsername = "[" + username + "](#" + color + ")";
+		std::string formattedUsername = "[" + username + "](#" + color + "): ";
 		std::string formattedTimestamp = "";
 
 		const float usernameWidth = ImGui::CalcTextSize(username.c_str(), NULL).x;
 
 		if (Messages[i].contains("info") && Messages[i]["info"].contains("timestamp")) {
 			std::string timestamp = Messages[i]["info"]["timestamp"];
-			formattedTimestamp = " [" + timestamp + "](#CDCDCD): ";
-		} else {
-			formattedUsername += ": ";
+			formattedTimestamp = "[" + timestamp + "](#CDCDCD) ";
 		}
 
-		Helper::RenderMultiLineText(Helper::TextToSegments(formattedUsername));
 		Helper::RenderMultiLineText(Helper::TextToSegments(formattedTimestamp));
-		ImGui::NewLine();
-		//ImGui::SameLine(messageSpacing);
+		Helper::RenderMultiLineText(Helper::TextToSegments(formattedUsername));
 		Helper::RenderMultiLineText(Helper::TextToSegments(message));
 		ImGui::NewLine();
 	}
@@ -227,6 +228,35 @@ void Chat::Draw()
 		if (Chat::focusInput) {
 			ImGui::SetKeyboardFocusHere(-1);
 			Chat::focusInput = false;
+		}
+	}
+
+	if (Chat::popupOpen) {
+		ImGui::OpenPopup("Open URL?");
+
+		ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+		ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+		if (ImGui::BeginPopupModal("Open URL?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+
+			ImGui::Text("Your browser is about to open");
+			ImGui::Text(Chat::lastURL);
+			ImGui::Text("Continue?");
+			ImGui::Separator();
+
+			if (ImGui::Button("Yes", ImVec2(120, 0))) {
+				Chat::popupOpen = false;
+				ImGui::CloseCurrentPopup();
+				Helper::OpenURL(Chat::lastURL);
+			}
+			ImGui::SetItemDefaultFocus();
+			ImGui::SameLine();
+			if (ImGui::Button("Close", ImVec2(120, 0))) {
+				Chat::popupOpen = false;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
 		}
 	}
 
