@@ -138,36 +138,6 @@ static int TextEditCallbackStub(ImGuiInputTextCallbackData* data) {
 	return 1;
 }
 
-void Chat::Draw2() {
-	// And this is my test case
-	if (ImGui::Begin("Text Test", nullptr, ImGuiWindowFlags_NoTitleBar))
-	{
-		ImGui::TextColored(ImColor(0, 255, 0, 255), "Half-manual wrapping");
-		
-		std::vector<Segment> segs;
-		segs.push_back(Segment("this is a really super duper long segment that should wrap all on its own "));
-		segs.push_back(Segment("http://google.com", IM_COL32(127, 127, 255, 255), true));
-		segs.push_back(Segment(" Short text "));
-		segs.push_back(Segment("http://github.com", IM_COL32(127, 127, 255, 255), true));
-		
-		Helper::RenderMultiLineText(segs);
-
-		ImGui::NewLine();
-
-		ImGui::Separator();
-		ImGui::TextColored(ImColor(0, 255, 0, 255), "Broken native wrapping");
-
-		ImGui::PushTextWrapPos(ImGui::GetContentRegionAvailWidth());
-		for (int i = 0; i < sizeof(segs) / sizeof(segs[0]); ++i)
-		{
-			ImGui::TextUnformatted(segs[i].textStart, segs[i].textEnd);
-			ImGui::SameLine();
-		}
-		ImGui::PopTextWrapPos();
-	}
-	ImGui::End();
-}
-
 void Chat::Draw()
 {
 	std::call_once(chatInitialized, ChatInit);
@@ -255,7 +225,7 @@ void Chat::Draw()
 			strcpy(s, "");
 		}
 		if (Chat::focusInput) {
-			//ImGui::SetKeyboardFocusHere(-1);
+			ImGui::SetKeyboardFocusHere(-1);
 			Chat::focusInput = false;
 		}
 	}

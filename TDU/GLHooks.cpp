@@ -34,7 +34,6 @@ bool hwglSwapBuffers(_In_ HDC hDc)
 
 	//Cheats::Menu::Draw();
 	Chat::Draw();
-	Chat::Draw2();
 
 	ImGui::EndFrame();
 	ImGui::Render();
