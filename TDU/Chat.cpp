@@ -125,7 +125,7 @@ void ChatInit() {
 	Chat::SetupImGuiStyle();
 
 	if (!Helper::CheckForUpdate()) return;
-	if(!Helper::PullConfig()) return;
+	if (!Helper::PullConfig()) return;
 
 	Helper::RegisterCommands();
 
@@ -138,10 +138,40 @@ static int TextEditCallbackStub(ImGuiInputTextCallbackData* data) {
 	return 1;
 }
 
+void Chat::Draw2() {
+	// And this is my test case
+	if (ImGui::Begin("Text Test", nullptr, ImGuiWindowFlags_NoTitleBar))
+	{
+		ImGui::TextColored(ImColor(0, 255, 0, 255), "Half-manual wrapping");
+		
+		std::vector<Segment> segs;
+		segs.push_back(Segment("this is a really super duper long segment that should wrap all on its own "));
+		segs.push_back(Segment("http://google.com", IM_COL32(127, 127, 255, 255), true));
+		segs.push_back(Segment(" Short text "));
+		segs.push_back(Segment("http://github.com", IM_COL32(127, 127, 255, 255), true));
+		
+		Helper::RenderMultiLineText(segs);
+
+		ImGui::NewLine();
+
+		ImGui::Separator();
+		ImGui::TextColored(ImColor(0, 255, 0, 255), "Broken native wrapping");
+
+		ImGui::PushTextWrapPos(ImGui::GetContentRegionAvailWidth());
+		for (int i = 0; i < sizeof(segs) / sizeof(segs[0]); ++i)
+		{
+			ImGui::TextUnformatted(segs[i].textStart, segs[i].textEnd);
+			ImGui::SameLine();
+		}
+		ImGui::PopTextWrapPos();
+	}
+	ImGui::End();
+}
+
 void Chat::Draw()
 {
 	std::call_once(chatInitialized, ChatInit);
-	
+
 	Chat::IO->MouseDrawCursor = Chat::inputOpen;
 
 	//ImGui::ShowDemoWindow();
@@ -157,12 +187,11 @@ void Chat::Draw()
 	}
 
 	std::string title = "Teardown Chat - v" + Globals::version;
-	
+
 	ImGui::SetNextWindowSize(ImVec2(466, 277), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowPos(ImVec2(30, Chat::IO->DisplaySize.y / 2 + 50), ImGuiCond_FirstUseEver);
 
 	ImGui::Begin(title.c_str(), 0, ImGuiWindowFlags_NoCollapse);
-
 
 	const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
 	const float messageSpacing = 8.0f;
@@ -170,15 +199,31 @@ void Chat::Draw()
 	ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false);
 	for (int i = 0; i < Messages.size(); i++)
 	{
+		std::stringstream messageStream;
+
+		messageStream << Messages[i]["sender"]["username"] << "\n" << Messages[i]["message"];
+
 		std::string message = Messages[i]["message"];
 		std::string username = Messages[i]["sender"]["username"];
 		std::string color = Messages[i]["sender"]["color"];
-		std::string formattedUsername = "{" + color + "}" + username + ": ";
+		std::string formattedUsername = "[" + username + "](#" + color + ")";
+		std::string formattedTimestamp = "";
+
 		const float usernameWidth = ImGui::CalcTextSize(username.c_str(), NULL).x;
 
-		Helper::TextWithColors(formattedUsername.c_str());
-		ImGui::SameLine(usernameWidth + messageSpacing);
-		ImGui::TextWrapped(message.c_str());
+		if (Messages[i].contains("info") && Messages[i]["info"].contains("timestamp")) {
+			std::string timestamp = Messages[i]["info"]["timestamp"];
+			formattedTimestamp = " [" + timestamp + "](#CDCDCD): ";
+		} else {
+			formattedUsername += ": ";
+		}
+
+		Helper::RenderMultiLineText(Helper::TextToSegments(formattedUsername));
+		Helper::RenderMultiLineText(Helper::TextToSegments(formattedTimestamp));
+		ImGui::NewLine();
+		//ImGui::SameLine(messageSpacing);
+		Helper::RenderMultiLineText(Helper::TextToSegments(message));
+		ImGui::NewLine();
 	}
 
 	if (scrollToBottom) {
@@ -206,14 +251,11 @@ void Chat::Draw()
 				else
 					Websocket::Send(Helper::GenerateWSMessage(Chat::uuid.c_str(), message));
 			}
-
 			Chat::inputOpen = false;
-	
 			strcpy(s, "");
 		}
-
 		if (Chat::focusInput) {
-			ImGui::SetKeyboardFocusHere(-1);
+			//ImGui::SetKeyboardFocusHere(-1);
 			Chat::focusInput = false;
 		}
 	}

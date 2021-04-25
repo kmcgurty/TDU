@@ -32,8 +32,9 @@ bool hwglSwapBuffers(_In_ HDC hDc)
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	Cheats::Menu::Draw();
+	//Cheats::Menu::Draw();
 	Chat::Draw();
+	Chat::Draw2();
 
 	ImGui::EndFrame();
 	ImGui::Render();

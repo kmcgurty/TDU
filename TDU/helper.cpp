@@ -1,5 +1,5 @@
-#include "helper.h"
 #include "Chat.h"
+#include "helper.h"
 #include "Websocket.h"
 #include "Globals.h"
 
@@ -11,112 +11,181 @@
 
 using json = nlohmann::json;
 
-const char ColorMarkerStart = '{';
-const char ColorMarkerEnd = '}';
-
-bool ProcessInlineHexColor(const char* start, const char* end, ImVec4& color)
-{
-    const int hexCount = (int)(end - start);
-    if (hexCount == 6 || hexCount == 8)
-    {
-        char hex[9];
-        strncpy(hex, start, hexCount);
-        hex[hexCount] = 0;
-
-        unsigned int hexColor = 0;
-        if (sscanf(hex, "%x", &hexColor) > 0)
-        {
-            color.x = static_cast<float>((hexColor & 0x00FF0000) >> 16) / 255.0f;
-            color.y = static_cast<float>((hexColor & 0x0000FF00) >> 8) / 255.0f;
-            color.z = static_cast<float>((hexColor & 0x000000FF)) / 255.0f;
-            color.w = 1.0f;
-
-            if (hexCount == 8)
-            {
-                color.w = static_cast<float>((hexColor & 0xFF000000) >> 24) / 255.0f;
-            }
-
-            return true;
-        }
-    }
-
-    return false;
+bool Helper::IsValidHex(std::string const& s) {
+    return s.find_first_not_of("0123456789abcdefABCDEF") == std::string::npos;
 }
 
-void Helper::TextWithColors(const char* fmt, ...)
-{
-    char tempStr[4096];
-
-    va_list argPtr;
-    va_start(argPtr, fmt);
-    _vsnprintf(tempStr, sizeof(tempStr), fmt, argPtr);
-    va_end(argPtr);
-    tempStr[sizeof(tempStr) - 1] = '\0';
-
-    bool pushedColorStyle = false;
-    const char* textStart = tempStr;
-    const char* textCur = tempStr;
-    while (textCur < (tempStr + sizeof(tempStr)) && *textCur != '\0')
+//most of this function is from https://github.com/ocornut/imgui/issues/2313
+//it saved me a ton of time. thank you!
+void Helper::RenderMultiLineText(std::vector<Segment> segs) {
+    const float wrapWidth = ImGui::GetWindowContentRegionWidth();
+    for (int i = 0; i < segs.size(); ++i)
     {
-        if (*textCur == ColorMarkerStart)
+        const char* textStart = segs[i].textStart;
+        const char* textEnd = segs[i].textEnd ? segs[i].textEnd : textStart + strlen(textStart);
+
+        ImFont* Font = ImGui::GetFont();
+
+        do
         {
-            // Print accumulated text
-            if (textCur != textStart)
-            {
-                ImGui::TextUnformatted(textStart, textCur);
-                ImGui::SameLine(0.0f, 0.0f);
+            float widthRemaining = ImGui::CalcWrapWidthForPos(ImGui::GetCursorScreenPos(), 0.0f);
+            const char* drawEnd = Font->CalcWordWrapPositionA(1.0f, textStart, textEnd, wrapWidth, wrapWidth - widthRemaining);
+            if (textStart == drawEnd){
+                ImGui::NewLine();
+                drawEnd = Font->CalcWordWrapPositionA(1.0f, textStart, textEnd, wrapWidth, wrapWidth - widthRemaining);
             }
 
-            // Process color code
-            const char* colorStart = textCur + 1;
-            do
-            {
-                ++textCur;
-            }             while (*textCur != '\0' && *textCur != ColorMarkerEnd);
-
-            // Change color
-            if (pushedColorStyle)
-            {
+            if (segs[i].colour)
+                ImGui::PushStyleColor(ImGuiCol_Text, segs[i].colour);
+            
+            ImGui::TextUnformatted(textStart, textStart == drawEnd ? nullptr : drawEnd);
+            
+            if (segs[i].colour)
                 ImGui::PopStyleColor();
-                pushedColorStyle = false;
+            
+            if (segs[i].underline){
+                ImVec2 lineEnd = ImGui::GetItemRectMax();
+                ImVec2 lineStart = lineEnd;
+                lineStart.x = ImGui::GetItemRectMin().x;
+                ImGui::GetWindowDrawList()->AddLine(lineStart, lineEnd, segs[i].colour);
+
+                if (ImGui::IsItemHovered(ImGuiHoveredFlags_RectOnly))
+                    ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);
             }
 
-            ImVec4 textColor;
-            if (ProcessInlineHexColor(colorStart, textCur, textColor))
-            {
-                ImGui::PushStyleColor(ImGuiCol_Text, textColor);
-                pushedColorStyle = true;
+            if (textStart == drawEnd || drawEnd == textEnd){
+                ImGui::SameLine(0.0f, 0.0f);
+                break;
             }
 
-            textStart = textCur + 1;
-        }
-        else if (*textCur == '\n')
-        {
-            // Print accumulated text an go to next line
-            ImGui::TextUnformatted(textStart, textCur);
-            textStart = textCur + 1;
-        }
+            textStart = drawEnd;
 
-        ++textCur;
-    }
-
-    if (textCur != textStart)
-    {
-        ImGui::TextUnformatted(textStart, textCur);
-    }
-    else
-    {
-        ImGui::NewLine();
-    }
-
-    if (pushedColorStyle)
-    {
-        ImGui::PopStyleColor();
+            while (textStart < textEnd){
+                const char c = *textStart;
+                if (ImCharIsBlankA(c)) { textStart++; }
+                else if (c == '\n') { textStart++; break; }
+                else { break; }
+            }
+        } while (true);
     }
 }
 
-std::string Helper::GenerateWSMessage(const char* uuid, const char* message)
+//this function is a mess to read. Unfortunately, regex was not an option, so we manually check each character.
+//checks for the pattern [text](data), to create markup urls, returns a vector of Segments
+std::vector<Segment> Helper::TextToSegments(std::string text)
 {
+    struct _parser {
+        struct _text {
+            const char beginChar = '[';
+            const char endChar = ']';
+        } text;
+
+        struct _url {
+            const char beginChar = '(';
+            const char endChar = ')';
+        } url;
+
+        int textBeginPos = -1;
+        int textEndPos = -1;
+        int modBeginPos = -1;
+        int modEndPos = -1;
+        int prevEndPos = 0;
+
+        void resetPositions() {
+            textBeginPos = -1;
+            textEndPos = -1;
+            modBeginPos = -1;
+            modEndPos = -1;
+        };
+
+        void pushPositions(std::string _text, std::vector<Segment>* pushTo, bool end) {
+            std::string preMod, postMod, modText, modData;
+
+            //std::cout << "prevEndPos: " << prevEndPos << " | textBeginPos: " <<  textBeginPos << " | textEndPos: " << textEndPos << " | modBeginPos: " << modBeginPos << " | modEndPos: " << modEndPos << std::endl;
+
+            if (!end) {
+                preMod = _text.substr(prevEndPos, (double)textBeginPos - (double)prevEndPos - 1);
+                modText = _text.substr(textBeginPos, textEndPos);
+                modData = _text.substr(modBeginPos, modEndPos);
+
+                if (preMod.length() > 0)
+                    pushTo->push_back(Segment(_strdup(preMod.c_str())));
+
+                if (modData.length() > 0 && modData.at(0) == '#') {
+                    std::string hex = modData.substr(1);
+
+                    int red = 255;
+                    int green = 255;
+                    int blue = 255;
+
+                    if (Helper::IsValidHex(hex) && hex.length() == 6)
+                        sscanf(hex.c_str(), "%02x%02x%02x", &red, &green, &blue);
+
+                    pushTo->push_back(Segment(_strdup(modText.c_str()), IM_COL32(red, green, blue, 255), false, ""));
+                }
+                else {
+                    pushTo->push_back(Segment(_strdup(modText.c_str()), IM_COL32(127, 127, 255, 255), true, _strdup(modData.c_str())));
+                }
+            }
+            else {
+                postMod = _text.substr(prevEndPos);
+
+                if (postMod.length() > 0)
+                    pushTo->push_back(Segment(_strdup(postMod.c_str())));
+            }
+
+            //std::cout << "preMod: " << preMod << " | modText: " << modText << " | modData: " << modData << std::endl;
+
+            prevEndPos = modBeginPos + modEndPos + 1;
+        }
+    } parser;
+
+    std::vector<Segment> segs;
+
+    for (unsigned int i = 0; i < text.length(); i++) {
+        char currChar = text.at(i);
+
+        if (currChar == parser.text.beginChar) {
+            parser.textBeginPos = i + 1;
+        }
+
+        if (currChar == parser.text.endChar) {
+            if (parser.textBeginPos < 0 || (text.at(i + 1) != parser.url.beginChar)) {
+                parser.resetPositions();
+                continue;
+            }
+
+            parser.textEndPos = i - parser.textBeginPos;
+
+        }
+
+        if (currChar == parser.url.beginChar) {
+            if (parser.textBeginPos < 0 || parser.textEndPos < 0) {
+                parser.resetPositions();
+                continue;
+            }
+
+            parser.modBeginPos = i + 1;
+
+        }
+
+        if (currChar == parser.url.endChar) {
+            if (parser.textBeginPos < 0 || parser.textEndPos < 0 || parser.modBeginPos < 0) {
+                parser.resetPositions();
+                continue;
+            }
+
+            parser.modEndPos = i - parser.modBeginPos;
+            parser.pushPositions(text, &segs, false);
+        }
+    }
+
+    parser.pushPositions(text, &segs, true);
+
+    return segs;
+}
+
+std::string Helper::GenerateWSMessage(const char* uuid, const char* message) {
     json j = {
         {"info", {
             {"type", "message"}
@@ -130,8 +199,7 @@ std::string Helper::GenerateWSMessage(const char* uuid, const char* message)
     return j.dump();
 }
 
-std::string Helper::GenerateLocalMessage(const char* username, const char* message, std::vector<int> color)
-{
+std::string Helper::GenerateLocalMessage(const char* username, const char* message, std::vector<int> color) {
     json j = {
         {"message", message},
         {"sender", {
@@ -143,8 +211,7 @@ std::string Helper::GenerateLocalMessage(const char* username, const char* messa
     return j.dump();
 }
 
-std::string Helper::GenerateWSCommand(const char* uuid, const char* command, const char* commandData)
-{
+std::string Helper::GenerateWSCommand(const char* uuid, const char* command, const char* commandData) {
     json j = {
         {"info", {
             {"type", "command"}
@@ -165,8 +232,8 @@ bool validUUID(std::string uuid) {
     return std::regex_match(uuid, expr);
 }
 
-std::string getFileContents(const char*) {
-    std::ifstream fileR(Chat::configFile);
+std::string getFileContents(const char* fileName) {
+    std::ifstream fileR(fileName);
     std::stringstream contentStream;
     std::string line;
 

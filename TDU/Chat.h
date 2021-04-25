@@ -32,6 +32,7 @@ namespace Chat
 	inline std::string uuid = "";
 	inline ImGuiIO* IO;
 	void Draw();
+	void Draw2();
 	void SetupImGuiStyle();
 	void SendLocalData(std::string data);
 	void SendLocalMessageUnformatted(const char* username, std::string message);
