@@ -50,6 +50,9 @@
     <Filter Include="Simple HTTP">
       <UniqueIdentifier>{358f8ad4-5966-488c-878d-2dec259fa76a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\multiplayer">
+      <UniqueIdentifier>{9f837723-56a5-4761-9526-ea4a7bd54be7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -222,6 +225,12 @@
     </ClCompile>
     <ClCompile Include="Websocket.cpp">
       <Filter>Source Files\Websocket</Filter>
+    </ClCompile>
+    <ClCompile Include="UDPSocket.cpp">
+      <Filter>Source Files\multiplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="multiplayer.cpp">
+      <Filter>Source Files\multiplayer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -407,6 +416,9 @@
     </ClInclude>
     <ClInclude Include="httplib.h">
       <Filter>Simple HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="multiplayer.h">
+      <Filter>Source Files\multiplayer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

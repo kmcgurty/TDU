@@ -236,12 +236,14 @@ Exit 0</Command>
     <ClCompile Include="Hooks.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="MiscHooks.cpp" />
+    <ClCompile Include="multiplayer.cpp" />
     <ClCompile Include="Noclip.cpp" />
     <ClCompile Include="PlayerHooks.cpp" />
     <ClCompile Include="ChatSetup.cpp" />
     <ClCompile Include="TDLua.cpp" />
     <ClCompile Include="TeardownFunctions.cpp" />
     <ClCompile Include="EntityFunctions.cpp" />
+    <ClCompile Include="UDPSocket.cpp" />
     <ClCompile Include="UtilFunctions.cpp" />
     <ClCompile Include="Websocket.cpp" />
   </ItemGroup>
@@ -264,6 +266,7 @@ Exit 0</Command>
     <ClInclude Include="httplib.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="MemoryFunctions.h" />
+    <ClInclude Include="multiplayer.h" />
     <ClInclude Include="mutex.hpp" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Script.h" />

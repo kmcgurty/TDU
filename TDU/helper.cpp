@@ -176,8 +176,7 @@ std::vector<Segment> Helper::TextToSegments(std::string text)
         if (currChar == parser.text.beginChar) {
             parser.textBeginPos = i + 1;
         }
-
-        if (currChar == parser.text.endChar) {
+        else if (currChar == parser.text.endChar) {
             if (parser.textBeginPos < 0 || (text.at((double)i + 1) != parser.url.beginChar)) {
                 parser.resetPositions();
                 continue;
@@ -186,8 +185,7 @@ std::vector<Segment> Helper::TextToSegments(std::string text)
             parser.textEndPos = i - parser.textBeginPos;
 
         }
-
-        if (currChar == parser.url.beginChar) {
+        else if (currChar == parser.url.beginChar) {
             if (parser.textBeginPos < 0 || parser.textEndPos < 0) {
                 parser.resetPositions();
                 continue;
@@ -196,8 +194,7 @@ std::vector<Segment> Helper::TextToSegments(std::string text)
             parser.modBeginPos = i + 1;
 
         }
-
-        if (currChar == parser.url.endChar) {
+        else if (currChar == parser.url.endChar) {
             if (parser.textBeginPos < 0 || parser.textEndPos < 0 || parser.modBeginPos < 0) {
                 parser.resetPositions();
                 continue;
@@ -205,6 +202,7 @@ std::vector<Segment> Helper::TextToSegments(std::string text)
 
             parser.modEndPos = i - parser.modBeginPos;
             parser.pushPositions(text, &segs, false);
+            parser.resetPositions();
         }
     }
 

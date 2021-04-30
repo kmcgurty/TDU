@@ -5,6 +5,7 @@
 #include "Signatures.h"
 #include "Cheats.h"
 #include "Chat.h"
+#include "multiplayer.h";
 
 #include <detours.h>
 
@@ -32,8 +33,11 @@ bool hwglSwapBuffers(_In_ HDC hDc)
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	//Cheats::Menu::Draw();
 	Chat::Draw();
+
+	//this is definitely not correct, but this is a free loop that already exists
+	//and it doesn't make sense to have a separate loop just for this function
+	Multiplayer::GameStateListener();
 
 	ImGui::EndFrame();
 	ImGui::Render();
