@@ -37,7 +37,7 @@ void Chat::SendLocalData(std::string data) {
 
 	parsed["sender"]["color"] = colorHex.str();
 
-	std::cout << parsed["sender"]["color"] << " - " << parsed["sender"]["username"] << ": " << parsed["message"] << std::endl;
+	//std::cout << parsed["sender"]["color"] << " - " << parsed["sender"]["username"] << ": " << parsed["message"] << std::endl;
 	
 	if (Messages.size() >= MessageHistoryLimit) {
 		Messages.erase(Messages.begin());
