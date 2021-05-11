@@ -27,3 +27,7 @@ void Multiplayer::GameStateListener() {
 		}
 	}
 }
+
+void Multiplayer::NewUDPConnection(const char* url) {
+
+}
