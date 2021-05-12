@@ -9,6 +9,15 @@ typedef std::function<void(std::vector<std::string>)> cmdCallback;
 
 namespace Chat
 {
+	inline std::string version = "1.2.0";
+	inline std::string UpdateURL = "https://chat.kmcgurty.com/latest";
+
+	#if defined(_DEBUG)
+	inline std::string WSuri = "localhost:9999";
+	#else
+	inline std::string WSuri = "chat.kmcgurty.com:9999";
+	#endif
+
 	class Command {
 	public:
 		const char* commandName;

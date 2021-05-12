@@ -357,7 +357,7 @@ bool Helper::CheckForUpdate(){
 
         int server_ver = std::stoi(server_ver_cleaned, nullptr, 10);
 
-        std::string client_ver_cleaned = removeAllChar(Globals::version, '.');
+        std::string client_ver_cleaned = removeAllChar(Chat::version, '.');
         int client_ver = std::stoi(client_ver_cleaned, nullptr, 10);
 
         std::cout << "Server (int): " << server_ver << ", Client (int): " << client_ver << std::endl;
@@ -366,7 +366,7 @@ bool Helper::CheckForUpdate(){
             Chat::SendLocalMessageUnformatted("Updater", "Your chat client is out of date. Click [here](https://github.com/kmcgurty/Teardown-Chat/releases/latest) to download the latest version, or visit [teardownchat.com](teardownchat.com).");
 
             std::stringstream ver;
-            ver << "Your version:" << Globals::version << " - Latest version: " << server_ver_string;
+            ver << "Your version:" << Chat::version << " - Latest version: " << server_ver_string;
             Chat::SendLocalMessageUnformatted("Version", ver.str());
             
             return false;
@@ -442,6 +442,6 @@ void Helper::RegisterCommands() {
         message << "Trying to reconnect to the server...";
         Chat::SendLocalMessageUnformatted("System", message.str());
         
-        Websocket::Open(Globals::WSuri);
+        Websocket::Open(Chat::WSuri);
     }, -1, "Reconnects your client to the server.");
 }

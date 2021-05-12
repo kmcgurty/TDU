@@ -4,7 +4,6 @@
 #include "httplib.h"
 
 #include "CLuaFunctions.h"
-#include "Teardown.h"
 
 #include "client_wss.hpp"
 #include "Websocket.h"
@@ -56,7 +55,7 @@ void handle_message(std::shared_ptr<WssClient::Connection> connection, std::shar
 void handle_open(std::shared_ptr<WssClient::Connection> connection) {
     WSConnection = connection;
 
-    std::string message = "Connected to server " + Globals::WSuri;
+    std::string message = "Connected to server " + Chat::WSuri;
     Chat::SendLocalMessageUnformatted("System", message);
 
     if (Chat::uuid == "") {
@@ -132,7 +131,7 @@ std::string Websocket::GrabLatestVersion() {
         std::regex url_regex("^(http://)?([^/]+)(/?.*/?)(/.*)$");
         std::smatch matches;
 
-        std::string url = Globals::UpdateURL;
+        std::string url = Chat::UpdateURL;
 
         if (std::regex_search(url, matches, url_regex)) {
             std::stringstream urlstream;

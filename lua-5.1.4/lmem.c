@@ -73,43 +73,14 @@ void *luaM_toobig (lua_State *L) {
 /*
 ** generic allocation routine.
 */
-//void *luaM_realloc_ (lua_State *L, void *block, size_t osize, size_t nsize) {
-//  global_State *g = G(L);
-//  lua_assert((osize == 0) == (block == NULL));
-//  block = (*g->frealloc)(g->ud, block, osize, nsize);
-//  if (block == NULL && nsize > 0)
-//    luaD_throw(L, LUA_ERRMEM);
-//  lua_assert((nsize == 0) == (block == NULL));
-//  g->totalbytes = (g->totalbytes - osize) + nsize;
-//  return block;
-//}
-
-// Backported from the latest lua version
-#define firsttry(g,block,os,ns)		((*g->frealloc)(g->ud, block, os, ns))
-#define unlikely(x)					(x)
-
-static void *tryagain(lua_State *L, void *block,
-	size_t osize, size_t nsize) {
-	global_State *g = G(L);
-	if (!ttisnil(&g->l_registry)) {  /* is state fully build? */
-		luaC_fullgc(L, 1);  /* try to free some memory... */
-		return (*g->frealloc)(g->ud, block, osize, nsize);  /* try again */
-	}
-	else return NULL;  /* cannot free any memory without a full state */
+void *luaM_realloc_ (lua_State *L, void *block, size_t osize, size_t nsize) {
+  global_State *g = G(L);
+  lua_assert((osize == 0) == (block == NULL));
+  block = (*g->frealloc)(g->ud, block, osize, nsize);
+  if (block == NULL && nsize > 0)
+    luaD_throw(L, LUA_ERRMEM);
+  lua_assert((nsize == 0) == (block == NULL));
+  g->totalbytes = (g->totalbytes - osize) + nsize;
+  return block;
 }
 
-void *luaM_realloc_(lua_State *L, void *block, size_t osize, size_t nsize) {
-	void *newblock;
-	global_State *g = G(L);
-	lua_assert((osize == 0) == (block == NULL));
-	newblock = firsttry(g, block, osize, nsize);
-	if (unlikely(newblock == NULL && nsize > 0)) {
-		if (nsize > osize)  /* not shrinking a block? */
-			newblock = tryagain(L, block, osize, nsize);
-		if (newblock == NULL)  /* still no memory? */
-			return NULL;  /* do not update 'GCdebt' */
-	}
-	lua_assert((nsize == 0) == (newblock == NULL));
-	g->gcdept = (g->gcdept + nsize) - osize;
-	return newblock;
-}

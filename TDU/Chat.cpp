@@ -129,7 +129,7 @@ void ChatInit() {
 
 	Helper::RegisterCommands();
 
-	Websocket::Open(Globals::WSuri);
+	Websocket::Open(Chat::WSuri);
 }
 
 //unused atm, but needed
@@ -161,7 +161,7 @@ void Chat::Draw()
 		colors[ImGuiCol_WindowBg] = ImVec4(0.180f, 0.180f, 0.180f, 0.650f);
 	}
 
-	std::string title = "Teardown Chat - v" + Globals::version;
+	std::string title = "Teardown Chat - v" + Chat::version;
 
 	ImGui::SetNextWindowSize(ImVec2(466, 277), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowPos(ImVec2(30, Chat::IO->DisplaySize.y / 2 + 50), ImGuiCond_FirstUseEver);

@@ -1,136 +1,102 @@
 #pragma once
-#include "Types.h"
+#include <stdint.h>
+
 #include "Player.h"
-#include "ShaderSystem.h"
 #include "Scene.h"
+#include "Types.h"
 
-class GameSettings
+enum eGameState : int8_t
+{
+	Splash = 1,
+	Menu = 2,
+	UIStart = 3,
+	Playing = 4,
+	Editor = 5,
+	Quitting = 6
+};
 
+inline static const char* cGameState[] = {
+	"Splash Screen",
+	"Menu",
+	"UI Startup",
+	"In-Game",
+	"Editing",
+	"Quitting"
+};
+
+class CMatrices
 {
 public:
-	int renderScale; //0x0000
-	int renderQuality; //0x0004
-	int gammaCorrection; //0x0008
-	int FOV; //0x000C
-	int motionBlur; //0x0010
-	int barrelDistortion; //0x0014
-	int DOF; //0x0018
-	int VSync; //0x001C
-	int soundVolume; //0x0020
-	int ambienceVolume; //0x0024 (Unused?)
-	int musicVolume; //0x0028
-	int mouseSmoothing; //0x002C
-	int mouseSensitivity; //0x0030
-	int invertLook; //0x0034
-	int headBob; //0x0038
-}; //Size: 0x003C
-
-class UISettings
-{
-public:
-	float UIXRescale; //0x0000
-	float BTLSkew; //0x0004 Bottom to left skew
-	float RTLCutoff; //0x0008 Right to left cutoff
-	float MTLSkew; //0x000C Middle to left skew
-	float BRSkew; //0x0010 Bottom right skew
-	float UIYRescale; //0x0014
-	float BTTClip; //0x0018 Bottom to top clip
-	float BMSkew; //0x001C Bottom middle skew
-	float cursorXOffset; //0x0020
-	float cursorYOffset; //0x0024
-	float N0000697C; //0x0028 Unknown, breaks cursor, values < -2 completely halt UI rendering
-	float UIShrink; //0x002C
-	float LTROffset; //0x0030 Left to right offset
-	float TTBOffset; //0x0034 Top to bototm offset
-	float N0000697E; //0x0038 Unknown, same behaviour as prev unknown value
-	float UIScale; //0x003C
-	float UIScaleX; //0x0040
-	float RTBRSkew; //0x0044 Right to bottom right skew
-	float RTLOffset; //0x0048 Right to left offset
-	float LFTMSkew; //0x004C Left to top middle skew
-	float BLTBRSkew; //0x0050 Bottom left to bottom right skew
-	float UIYSize; //0x0054 Scale is relative to screen size
-	float TTBClip; //0x0058 Top to bototm clip
-	float BRTTLSkew; //0x005C Bottom right to top left skew
-	float N0000698D; //0x0060 Unknown, doesn't seem to change anything
-	float N00002B92; //0x0064 Unknown, doesn't seem to change anything
-	float N00006993; //0x0068 Unknown, if you set it to 0 it makes you click on the last created elements
-	float CursorYOffset; //0x006C
-	float UIXOffset; //0x0070 In pixels
-	float UIYOffset; //0x0074 Also in pixels
-	float N00006996; //0x0078 Unknown, doesn't seem to change anything.
-	float shrinkFromTopRight; //0x007C
+	glm::mat4x4 m_ProjectionMatrix; //0x0000
+	glm::mat4x4 m_ViewMatrix; //0x0040
 }; //Size: 0x0080
 
-class Game
+class CGameSettings
 {
 public:
-	char pad_0000[8]; //0x0000
-	int8_t State; //0x0008 6: quitting | 5: editor | 4: in game | 3: starting ui | 2: in menu | 1: splash
-	char pad_0009[3]; //0x0009
-	int8_t StateTransition; //0x000C
-	char pad_000D[3]; //0x000D
-	float loadingFade; //0x0010
-	bool isPlaying; //0x0014
-	char pad_0015[3]; //0x0015
-	float loadingFade2; //0x0018
-	bool isMapOpen; //0x001C
-	char pad_001D[11]; //0x001D
-	class GameGLProgram* pGameGLProgram; //0x0028 No idea if they're programs, devices, or whatever, I'd love to know though
-	class UIGLProgram* pUIGLProgram; //0x0030 cause i seriously don't know anything regarding this
-	ShaderSystem* pShaderSystem; //0x0038
-	class Scene* pScene; //0x0040
-	class SoundSystem* pSoundSystem; //0x0048
-	class CameraSystem* pCameraSystem; //0x0050
-	class EditorUndoable* pEditorUndoable; //0x0058
-	char pad_0060[8]; //0x0060
-	void* pHud; //0x0068
-	void* pHud2; //0x0070
-	void* pHud3; //0x0078
-	class HUD* pHud4; //0x0080
-	class Debugger* pDebugging; //0x0088
-	class Device* pDevice; //0x0090
-	Player* pPlayer; //0x0098
-	void* pDataManager; //0x00A0
-	char pad_00A8[16]; //0x00A8
-	void* pData; //0x00B8
-	class modMgr* pModMgr; //0x00C0
-	char pad_00C8[72]; //0x00C8
-	bool isPaused; //0x0110
-	char pad_0111[3]; //0x0111
-	int32_t levelTime; //0x0114
-	int32_t playTime; //0x0118
-	char pad_011C[4]; //0x011C
-	float timeScale; //0x0120
-	float timeStep; //0x0124 1 / 59-ish = default val
-	float totalDelta; //0x0128
-	float totalTime; //0x012C
-	float gameTime; //0x0130
-	float gameDelta; //0x0134
-	char pad_0138[156]; //0x0138
-	UISettings HUDShaderSettings; //0x01D4
-	bool isLoadingSave; //0x0254
-	bool isSaving; //0x0255
-	bool applyGraphics; //0x0256
-	bool respawnPlayer; //0x0257
-	float weirdEffect; //0x0258
-	char pad_025C[24]; //0x025C
-	GameSettings gameSettings; //0x0274
-	char pad_02B0[24]; //0x02B0
-	Teardown::small_string levelXMLPath; //0x02C8
-	char pad_02D0[88]; //0x02D0
-	char* levelXMLPath2; //0x0330
-	char pad_0338[80]; //0x0338
-	Teardown::small_string currentlyEditingXMLPath; //0x0388
-	bool canReturnToEditor; //0x0398
-	char pad_0399[7]; //0x0399
-	char* editorTempXML; //0x03A0
-	char pad_03A8[9]; //0x03A8
-	bool updatingPlayer; //0x03B1
-	char pad_03B2[22]; //0x03B2
-	int32_t finalGLProgram; //0x03C8 Final renderTarget
-	char pad_03CC[40]; //0x03CC
-	int32_t screenResX; //0x03F4
-	int32_t screenResY; //0x03F8
-	char pad_03FC[20]; //0x03FC
-}; //Size: 0x0410 / Verified
+	int m_RenderScale;		//0x0000
+	int m_RenderQuality;	//0x0004
+	int m_GammaCorrection;	//0x0008
+	int m_FOV;				//0x000C
+	int m_MotionBlur;		//0x0010
+	int m_BarrelDist;		//0x0014
+	int m_DOF;				//0x0018
+	int m_VSync;			//0x001C
+	int m_SoundVol;			//0x0020
+	int m_AmbienceVol;		//0x0024 (Unused?)
+	int m_MusicVol;			//0x0028
+	int m_MouseSmoothing;	//0x002C
+	int m_MouseSensitivity; //0x0030
+	int m_InvertLook;		//0x0034
+	int m_HeadBob;			//0x0038
+}; //Size: 0x003C
+
+class CGame
+{
+public:
+	int32_t m_ResX;					//0x0000
+	int32_t m_ResY;					//0x0004
+	int32_t m_State;				//0x0008
+	int32_t m_TargetState;			//0x000C
+	float m_LoadingEffect;			//0x000D
+	bool m_Playing;					//0x0014
+	char pad_0015[3];				//0x0015
+	float m_LoadingEffect2;			//0x0018
+	bool m_MapOpen;					//0x001C
+	char pad_001D[43];				//0x001D
+	CScene* m_Scene;				//0x0048
+	char pad_0058[40];				//0x0058
+	void* m_MenuScript;				//0x0080
+	char pad_0088[24];				//0x0088
+	CPlayer* m_Player;				//0x00A0
+	void* m_PathMgr;				//0x00A8
+	char pad_00A8[48];				//0x00B0
+	void* m_SteamInterface;			//0x00E0 - To be used for mod sync
+	char pad_00E8[48];				//0x00E8
+	bool m_Paused;					//0x0118
+	char pad_0119[3];				//0x0119
+	int32_t m_iElapsedTime;			//0x011C
+	int32_t m_iPlayedTime;			//0x0120
+	float m_SoundTimeScale;			//0x0124
+	float m_Timescale;				//0x0128
+	float m_TimeStep;				//0x012C
+	float m_TimeDelta;				//0x0130
+	float m_fElapsedTime;			//0x0134
+	float m_fPlayedTime;			//0x0138
+	float m_TimeDelta2;				//0x013C
+	char pad_0140[28];				//0x0140
+	CMatrices m_GameMatrix;			//0x015C
+	CMatrices m_UIMatrix;			//0x01DC
+	char pad_025C[36];				//0x025C
+	CGameSettings m_GameSettings;	//0x0280
+	char pad_02BC[4];				//0x02BC
+	small_string m_LevelId;			//0x02C0
+	small_string m_LevelLayer;		//0x02D8
+	char pad_02F0[56];				//0x02F0
+	small_string m_LevelId2;		//0x0328
+	small_string m_LevelLayer2;		//0x0340
+	char pad_0358[80];				//0x0358
+	class small_string m_TempPath;	//0x03A8
+};
+
+inline CGame* g_Game;

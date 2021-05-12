@@ -1,20 +1,7 @@
 #pragma once
+#include <wtypes.h>
 
-#include <string>
-#include <Windows.h>
-
-namespace Globals
-{
-	inline std::string version("1.1.0");
-	inline std::string UpdateURL = "https://chat.kmcgurty.com/latest";
-
-	#if defined(_DEBUG)
-	inline std::string WSuri = "localhost:9999";
-	#else
-	inline std::string WSuri = "chat.kmcgurty.com:9999";
-	#endif
-
-	inline HWND HWnd;
-	inline HMODULE HModule;
-	inline float FPS;
-}
+inline HWND g_Wnd;
+inline HMODULE g_Module;
+inline char g_Version[28] = "4.21.2021";
+inline bool g_FreeCursor = false;

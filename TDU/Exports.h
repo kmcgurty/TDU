@@ -1,3 +1,10 @@
+#pragma once
+
+/*
+	These can be any dll you want, as far as the game wants to load it, and you can get the export names ( I use a python script for this )
+	OpenGL seems to be the easiest one though
+*/
+
 #pragma comment(linker, "/export:wglCreateContext=C:\\Windows\\system32\\opengl32.wglCreateContext")
 #pragma comment(linker, "/export:wglSwapBuffers=C:\\Windows\\system32\\opengl32.wglSwapBuffers") 
 #pragma comment(linker, "/export:GlmfBeginGlsBlock=C:\\Windows\\system32\\opengl32.GlmfBeginGlsBlock")

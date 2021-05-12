@@ -3,9 +3,9 @@
 #include "Globals.h"
 #include "Memory.h"
 #include "Signatures.h"
-#include "Cheats.h"
+
 #include "Chat.h"
-#include "multiplayer.h";
+#include "Menus.h"
 
 #include <detours.h>
 
@@ -17,14 +17,11 @@
 #include <backends/imgui_impl_win32.h>
 #include <backends/imgui_impl_opengl3.h>
 
-
-
 /*
 	SwapBuffers hook
 	- Used for rendering ImGui / menus
 */
-
-typedef BOOL	(*twglSwapBuffers)		(_In_ HDC hDc);
+typedef BOOL(*twglSwapBuffers)		(_In_ HDC hDc);
 twglSwapBuffers owglSwapBuffers;
 
 bool hwglSwapBuffers(_In_ HDC hDc)
@@ -35,10 +32,6 @@ bool hwglSwapBuffers(_In_ HDC hDc)
 
 	Chat::Draw();
 
-	//this is definitely not correct, but this is a free loop that already exists
-	//and it doesn't make sense to have a separate loop just for this function
-	Multiplayer::GameStateListener();
-
 	ImGui::EndFrame();
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -46,11 +39,11 @@ bool hwglSwapBuffers(_In_ HDC hDc)
 	return owglSwapBuffers(hDc);
 }
 
-void Hooks::GLHooks::HookSwapBuffers()
+void Hooks::GLHooks::HookSB()
 {
 	HMODULE OpenGL = GetModuleHandle("C:\\Windows\\System32\\opengl32.dll");
 	owglSwapBuffers = (twglSwapBuffers)GetProcAddress(OpenGL, "wglSwapBuffers");
-	WriteLog(LogType::Address, "wglSwapBuffers: 0x%p | hook: 0x%p", owglSwapBuffers, hwglSwapBuffers);
+	WriteLog(ELogType::Address, "wglSwapBuffers: 0x%p", owglSwapBuffers);
 
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
@@ -66,7 +59,7 @@ void Hooks::GLHooks::HookSwapBuffers()
 typedef void(*tglewInit)	();
 tglewInit oglewInit;
 
-void resetImgui()
+void ResetImgui()
 {
 	// shutdown imgui just in case
 	ImGui_ImplWin32_Shutdown();
@@ -78,7 +71,7 @@ void resetImgui()
 	io.Fonts->AddFontFromFileTTF("data\\ui\\font\\Ubuntu-Regular.ttf", 16);
 
 	const char* glsl_version = "#version 130";
-	ImGui_ImplWin32_Init(Globals::HWnd);
+	ImGui_ImplWin32_Init(g_Wnd);
 	ImGui_ImplOpenGL3_Init(glsl_version);
 }
 
@@ -87,14 +80,13 @@ void hglewInit()
 	oglewInit();
 	glewInit();
 
-	resetImgui();
+	ResetImgui();
 }
 
 void Hooks::GLHooks::HookGlewInit()
 {
-
-	oglewInit = (tglewInit)Memory::FindPattern(Signatures::glewInit.pattern, Signatures::glewInit.mask, Globals::HModule);
-	WriteLog(LogType::Address, "glewInit: 0x%p | hook: 0x%p", oglewInit, hglewInit);
+	oglewInit = (tglewInit)Memory::dwFindPattern(Signatures::glewInit);
+	WriteLog(ELogType::Address, "glewInit: 0x%p", oglewInit);
 
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
