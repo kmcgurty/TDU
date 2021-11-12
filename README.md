@@ -15,7 +15,7 @@ Teardown Chat is an open source chat client for the game Teardown. Based off of 
 3. Extract the entire contents of Teardown Chat-X.X.X.zip to the folder that opened. Overwrite any files if necessary.
 
 ## Todo
-*It should be known that I probably won't impletment these features unless the mod gains more traction.*
+*It should be known that I probably won't implement these features unless the mod gains more traction.*
 * Account verification. Usernames are not unique as of writing.
 * User roles [Admin/Mod/VIP]
 * Message history on arrow up
